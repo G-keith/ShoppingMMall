@@ -42,6 +42,7 @@ public class UserController {
         return response;
     }
 
+    //登出
     @RequestMapping(value = "logout.do", method = RequestMethod.POST)
     @ResponseBody
     public ServerResponse<String> logout(HttpSession session) {
@@ -49,21 +50,24 @@ public class UserController {
         return ServerResponse.createBySuccess();
     }
 
-    @RequestMapping(value = "register.do", method = RequestMethod.POST)
+    //注册
+    @RequestMapping(value = "register.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<String> register(User user) {
         return iUserService.register(user);
     }
 
 
-    @RequestMapping(value = "check_valid.do", method = RequestMethod.POST)
+    //实时校验
+    @RequestMapping(value = "check_valid.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<String> checkValid(String str, String type) {
         return iUserService.checkValid(str, type);
     }
 
 
-    @RequestMapping(value = "get_user_info.do", method = RequestMethod.POST)
+    //获取用户信息
+    @RequestMapping(value = "get_user_info.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<User> getUserInfo(HttpSession session) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
@@ -74,11 +78,48 @@ public class UserController {
     }
 
 
-    @RequestMapping(value = "forget_get_question.do", method = RequestMethod.POST)
+    //忘记密码
+    @RequestMapping(value = "forget_get_question.do", method = RequestMethod.GET)
     @ResponseBody
     public ServerResponse<String> forgetGetQuestion(String username) {
         return iUserService.selectQuestion(username);
     }
 
+    //校验问题答案是否正确
+    @RequestMapping(value = "check_answer.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> checkAnswer(String username,String question,String answer){
+        return iUserService.checkAnswer(username,question,answer);
+
+    }
+
+    //忘记密码中的重置密码功能
+    @RequestMapping(value = "forget_reset_password.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> forgetResetPassword(String username,String passwordNew,String forgetToken){
+        return iUserService.forgetResetPassword(username,passwordNew,forgetToken);
+    }
+
+    //登录状态下的重置密码
+    @RequestMapping(value = "forget_password.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<String> forgetPassword(String passwordOld,String passwordNew,HttpSession session){
+        User user=(User)session.getAttribute(Const.CURRENT_USER);
+        if(user==null){
+            return ServerResponse.createByErrorMessage("用户未登录，请先登录");
+        }
+        return iUserService.forgetPassword(passwordOld,passwordNew,user);
+    }
+
+    //更新个人用户信息
+    @RequestMapping(value = "update_information.do", method = RequestMethod.GET)
+    @ResponseBody
+    public ServerResponse<User> updateInformation(HttpSession session,User user){
+        User currentUser=(User)session.getAttribute(Const.CURRENT_USER);
+        if(currentUser==null){
+            return ServerResponse.createByErrorMessage("用户未登录，请先登录");
+        }
+        return iUserService.updateInformation(user);
+    }
 
 }
