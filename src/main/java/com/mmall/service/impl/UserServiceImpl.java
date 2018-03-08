@@ -37,7 +37,7 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("密码错误");
         }
 
-        user.setPassword(org.apache.commons.lang3.StringUtils.EMPTY);
+        user.setPassword(StringUtils.EMPTY);
         return ServerResponse.createBySuccess("登录成功", user);
     }
 
@@ -62,7 +62,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     public ServerResponse<String> checkValid(String str, String type) {
-        if (org.apache.commons.lang3.StringUtils.isNotBlank(type)) {
+        if (StringUtils.isNotBlank(type)) {
             //开始校验
             if (Const.USERNAME.equals(type)) {
                 int resultCount = userMapper.checkUsername(str);
