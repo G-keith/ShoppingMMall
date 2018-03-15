@@ -112,7 +112,7 @@
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateTime != null" >
-        now(),
+        update_time = now(),
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
@@ -124,8 +124,7 @@
       pay_platform = #{payPlatform,jdbcType=INTEGER},
       platform_number = #{platformNumber,jdbcType=VARCHAR},
       platform_status = #{platformStatus,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      now()
+      creatupdate_time = now()now()
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

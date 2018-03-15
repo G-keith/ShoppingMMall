@@ -17,5 +17,5 @@ public interface ICategoryService {
 
     ServerResponse<List<Category>> getCategoryByParentId(Integer categoryId);
 
-    ServerResponse DeepGetCategoryByParentId(Integer categoryId);
+    ServerResponse<List<Integer>> DeepGetCategoryByParentId(Integer categoryId);
 }

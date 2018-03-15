@@ -29,6 +29,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Autowired
     private CategoryMapper categorymapper;
 
+    @Override
     public ServerResponse addCategory(String categoryName, Integer parentId) {
         if (parentId == null || StringUtils.isBlank(categoryName)) {
             return ServerResponse.createByErrorMessage("添加品类参数错误");
@@ -70,7 +71,7 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     //通过传过来的id查询子节点id判断下面是否有下一级id
-    public ServerResponse DeepGetCategoryByParentId(Integer categoryId) {
+    public ServerResponse<List<Integer>> DeepGetCategoryByParentId(Integer categoryId) {
 
         Set<Category> categorySet = Sets.newHashSet();
         findCategory(categorySet, categoryId);
