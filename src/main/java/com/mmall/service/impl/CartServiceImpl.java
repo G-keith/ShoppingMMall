@@ -1,5 +1,6 @@
 package com.mmall.service.impl;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.mmall.common.Const;
 import com.mmall.common.ResponseCode;
@@ -15,6 +16,7 @@ import com.mmall.vo.CartProductVo;
 import com.mmall.vo.CartVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,11 +34,13 @@ public class CartServiceImpl implements ICartService {
     @Autowired
     private ProductMapper productMapper;
 
+    //根据前端的要求，返回相应的数据格式，泛型未自己定义的一个类
     public ServerResponse<CartVo> addProduct(Integer count, Integer productId, Integer userId) {
-        if (productId == null || count==null) {
-return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(),ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        if (productId == null || count == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
         }
         Cart cart = cartMapper.selectCarByUserIdAndProductId(productId, userId);
+        //cart==null，说明购物车中没有该类物品，直接添加即可；否则在购物车中加上相应的数量
         if (cart == null) {
             Cart cartItem = new Cart();
             cartItem.setUserId(userId);
@@ -52,10 +56,53 @@ return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.get
         return getList(userId);
     }
 
+    @Override
+    public ServerResponse<CartVo> updateProduct(Integer count, Integer productId, Integer userId) {
+        if (productId == null || count == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        Cart cart = cartMapper.selectCarByUserIdAndProductId(productId, userId);
+        if (cart != null) {
+            cart.setQuantity(count);
+        }
+        cartMapper.updateByPrimaryKey(cart);
+        return this.getList(userId);
+    }
+
     public ServerResponse<CartVo> getList(Integer userId) {
         CartVo cartVo = this.getCartProductVoLimit(userId);
         return ServerResponse.createBySuccess(cartVo);
     }
+
+    public ServerResponse<CartVo> deleteProduct(String productIds, Integer userId) {
+        //利用Guauab将string转成list集合
+        List<String> productIdList = Splitter.on(",").splitToList(productIds);//将productIds根据“，”分割成集合
+        if (CollectionUtils.isEmpty(productIdList)) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.getCode(), ResponseCode.ILLEGAL_ARGUMENT.getDesc());
+        }
+        cartMapper.deleteByProductIdAndUserId(userId, productIdList);
+        return getList(userId);
+    }
+
+
+    public ServerResponse setAllProductCheckedOrUnChecked(Integer userId, Integer checked) {
+        cartMapper.updateAllCheckedByUserId(userId, checked);
+        return getList(userId);
+    }
+
+    public ServerResponse setProductCheckedOrUnChecked(Integer userId, Integer checked, Integer productId) {
+        cartMapper.updateCheckedByUserId(userId, checked, productId);
+        return getList(userId);
+    }
+
+    public ServerResponse getProductCount(Integer userId) {
+        if (userId == null) {
+            return ServerResponse.createBySuccess("0");
+        }
+        cartMapper.selectProductCount(userId);
+        return getList(userId);
+    }
+
 
     private CartVo getCartProductVoLimit(Integer userId) {
         CartVo cartVo = new CartVo();
@@ -95,9 +142,12 @@ return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.get
                     cartMapper.updateByPrimaryKeySelective(cart);
                 }
                 cartProductVo.setQuantity(buyMaxCount);
+
+                //同类商品总价，封装BigDecimal类，避免运算小数时出现的问题
                 cartProductVo.setProductTotalPrice(BigDecimalUtil.multiply(buyMaxCount, product.getPrice().doubleValue()));
             }
 
+            //计算购物车总价时，判断是否商品被勾选状态
             if (cartItem.getChecked() == Const.Cart.CHECKED) {
                 cartTotalPrice = BigDecimalUtil.add(cartTotalPrice.doubleValue(), cartProductVo.getProductTotalPrice().doubleValue());
             }
@@ -112,6 +162,9 @@ return ServerResponse.createByErrorCodeMessage(ResponseCode.ILLEGAL_ARGUMENT.get
     }
 
     private boolean getStatus(Integer userId) {
+        if (userId == null) {
+            return false;
+        }
         return cartMapper.getStatusByUserId(userId) == 0;
     }
 }

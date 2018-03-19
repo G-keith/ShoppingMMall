@@ -135,5 +135,35 @@
   <select id="getStatusByUserId" resultType="java.lang.Integer">
     select count(1) from mmall_cart where user_id=#{userId} and checked=0;
   </select>
+  
+  <update id="deleteByProductIdAndUserId" parameterType="map">
+    update from mmall_cart
+    where user_id=#{UserId}
+    <if test="productIdList!=null">
+      and product_id in
+      <foreach collection="productIdList" item="item" index="index" open="(" separator="," close=")">
+        #{item}
+      </foreach>
+    </if>
+  </update>
+  
+  <update id="updateAllCheckedByUserId" parameterType="map">
+    update mmall_cart
+    set checked=#{checked},update_time=now()
+    where user_id=#{UserId}
+  </update>
+  
+  <update id="updateCheckedByUserId" parameterType="map">
+     update mmall_cart
+    set checked=#{checked},update_time=now()
+    where user_id=#{UserId}
+    <if test="productId!=null">
+      and product_id=#{productId}
+    </if>
+  </update>
+
+  <select id="selectProductCount" resultType="integer" parameterType="integer">
+    select IFNULL(sum(quantity),0) as count from mmall_cart where user_id=#{userId}
+  </select>
 
 </mapper>

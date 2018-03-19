@@ -10,4 +10,16 @@ import com.mmall.vo.CartVo;
 public interface ICartService {
 
     ServerResponse<CartVo> addProduct(Integer count, Integer productId, Integer userId);
+
+    ServerResponse<CartVo> updateProduct(Integer count, Integer productId, Integer userId);
+
+    ServerResponse<CartVo> deleteProduct(String productIds, Integer userId);
+
+    ServerResponse<CartVo> getList(Integer userId);
+
+    ServerResponse setAllProductCheckedOrUnChecked(Integer userId,Integer checked);
+
+    ServerResponse setProductCheckedOrUnChecked(Integer userId,Integer checked,Integer productId);
+
+    ServerResponse getProductCount(Integer userId);
 }
