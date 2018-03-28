@@ -1,7 +1,11 @@
 package com.mmall.dao;
 
 import com.mmall.pojo.Order;
+import com.mmall.pojo.OrderItem;
 import org.apache.ibatis.annotations.Param;
+import org.aspectj.weaver.ast.Or;
+
+import java.util.List;
 
 public interface OrderMapper {
     int deleteByPrimaryKey(Integer id);
@@ -19,4 +23,10 @@ public interface OrderMapper {
     Order selectByUserIdAndOrderNo(@Param("orderNo") Long orderNo,@Param("userId") Integer userId);
 
     Order selectByBorderNo(Long orderNo);
+
+    List<Order> selectByUserId(Integer userId);
+
+    Order selectByOrderNo(Long orderNo);
+
+    List<Order> selectAllOrder();
 }

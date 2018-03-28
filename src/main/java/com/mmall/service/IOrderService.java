@@ -15,4 +15,22 @@ public interface IOrderService {
     ServerResponse alipayCallback(Map<String, String> params);
 
     ServerResponse getOrderStatus(Long orderNo, Integer userId);
+
+    ServerResponse createOrder(Integer shippingId,Integer userId);
+
+    ServerResponse cancleOrder(Integer userId,Long orderNo);
+
+    ServerResponse getOrderCartProduct(Integer userId);
+
+    ServerResponse getOrderDetail(Integer userId,Long orderNo);
+
+    ServerResponse getOrderList(Integer userId, int pageNum, int pageSize);
+
+    ServerResponse manageGetDetail(Long orderNo);
+
+    ServerResponse manageGetList(int pageNum, int pageSize);
+
+    ServerResponse manageSearch(Long orderNo,int pageNum, int pageSize);
+
+    ServerResponse sendGoods(Long orderNo);
 }
